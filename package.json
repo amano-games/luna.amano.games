@@ -1,0 +1,17 @@
+{
+  "name": "physics-steps.amano.games",
+  "version": "1.0.0",
+  "description": "Physics debugger for a pinball game",
+  "main": "index.js",
+  "repository": "git@github.com:amano-games/physics-steps.git",
+  "author": "Mario Carballo Zama <afk@ellugar.co>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.2.9"
+  }
+}
