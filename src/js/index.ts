@@ -1,49 +1,7 @@
-import p5, { File } from "p5";
 import JSON5 from "json5";
 
-import { Element } from "p5";
-
-interface ShapeCircle {
-  p: [number, number];
-  r: number;
-}
-
-interface ShapeCapsule {
-  a: [number, number];
-  b: [number, number];
-  ra: number;
-  rb: number;
-}
-
-interface ShapePolygon {
-  verts: [number, number][];
-}
-
-interface Body {
-  shape_type: { id: number; label: string };
-  shape: ShapeCircle | ShapeCapsule | ShapePolygon;
-  pos: [number, number];
-  ang_vel: number;
-  ang_vel_d: number;
-  vel: [number, number];
-  vel_d: [number, number];
-}
-
-interface Collision {
-  manifold: {
-    depth: number;
-    contact: [number, number];
-    normal: [number, number];
-  };
-  body: Body;
-}
-
-interface Step {
-  name: string;
-  ball: Body;
-  cam_offset: [number, number];
-  collisions: Collision[];
-}
+import p5, { File } from "p5";
+import type { Element } from "p5";
 
 interface Controls {
   view: { x: number; y: number; width: number; height: number; zoom: number };
@@ -215,14 +173,67 @@ new p5((p5Instance) => {
 
   function drawStepName(step: Step) {
     const { name } = step;
+    p5.push();
+
+    p5.resetMatrix();
+
+    p5.fill("black");
+
+    const height = 50;
+    const padding = 20;
+    const y = p5.windowHeight - 30;
+
+    p5.rect(0, p5.windowHeight - height, p5.windowWidth, height);
+
+    p5.fill("whitw");
     p5.textSize(20);
     p5.textAlign(p5.LEFT, p5.CENTER);
-    p5.text(name, 0, -20);
+    p5.text(name, padding, y);
 
     p5.textAlign(p5.RIGHT, p5.CENTER);
     if (slider) {
-      p5.text(slider?.value(), 400, -20);
+      p5.text(slider?.value(), p5.windowWidth - padding, y);
     }
+
+    const minItems = 400;
+    const minItemsH = minItems / 2;
+
+    const current = Number(slider?.value());
+    const min = Math.max(0, current - minItemsH);
+    const max = Math.min(steps.length - 1, current + minItemsH);
+    const count = max - min;
+    const barWidth = p5.windowWidth / count;
+
+    for (let index = 0; index < count; index++) {
+      const step = steps[index + min];
+      const barHeight = 8;
+      p5.noStroke();
+      const hasCollision = step.collisions.length > 0;
+      const penetration = step.collisions.reduce((prev, curr) => {
+        return prev + curr.manifold.depth;
+      }, 0);
+
+      if (index + min === current) {
+        p5.fill("green");
+      } else if (penetration > 6 && penetration < 3) {
+        p5.fill("red");
+      } else if (penetration > 3) {
+        p5.fill("orange");
+      } else if (hasCollision) {
+        p5.fill("yellow");
+      } else {
+        p5.fill(200);
+      }
+
+      p5.rect(
+        index * (barWidth + 1),
+        p5.windowHeight - height - barHeight,
+        barWidth,
+        barHeight
+      );
+    }
+
+    p5.pop();
   }
 
   function drawStep(step: Step) {
@@ -253,7 +264,7 @@ new p5((p5Instance) => {
 
   function drawBall(ball: Body) {
     const pos = v2(ball.pos);
-    // const { ang_vel, ang_vel_d } = ball;
+    const { ang_vel: angVel, ang_vel_d: angVelDel } = ball;
     const vel = v2(ball.vel).mult(10).add(pos);
     const velDelta = v2(ball.vel_d).mult(10).add(pos);
     const posN = v2(ball.vel).add(pos);
@@ -262,12 +273,15 @@ new p5((p5Instance) => {
 
     p5.push();
     p5.fill("black");
-    p5.textSize(4);
+    p5.textFont("mono", 4);
+    p5.textLeading(2);
     p5.textAlign(p5.LEFT, p5.CENTER);
     p5.text(
       `pos: ${pos.x}, ${pos.y}\n
 vel: ${vel.x}, ${vel.y}\n
 velDelta: ${velDelta.x}, ${velDelta.y}\n
+velAng: ${angVel}\n
+velAngDelta: ${angVelDel}
 `,
       pos.x + r + 10,
       pos.y - r
@@ -329,6 +343,19 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
     p5.push();
     p5.stroke("rgba(255,0,0,0.8)");
     p5.line(contact.x, contact.y, normal.x, normal.y);
+    p5.pop();
+
+    p5.push();
+    p5.fill("black");
+    p5.textFont("mono", 4);
+    p5.textLeading(2);
+    p5.textAlign(p5.RIGHT, p5.CENTER);
+    p5.text(
+      `depth: ${depth}
+`,
+      contact.x - 20,
+      contact.y
+    );
     p5.pop();
   }
 
