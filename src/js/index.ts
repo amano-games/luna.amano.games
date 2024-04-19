@@ -195,42 +195,57 @@ new p5((p5Instance) => {
       p5.text(slider?.value(), p5.windowWidth - padding, y);
     }
 
-    const minItems = 400;
+    const minItems = 300;
     const minItemsH = minItems / 2;
 
     const current = Number(slider?.value());
-    const min = Math.max(0, current - minItemsH);
-    const max = Math.min(steps.length - 1, current + minItemsH);
-    const count = max - min;
-    const barWidth = p5.windowWidth / count;
 
-    for (let index = 0; index < count; index++) {
-      const step = steps[index + min];
-      const barHeight = 8;
-      p5.noStroke();
-      const hasCollision = step.collisions.length > 0;
-      const penetration = step.collisions.reduce((prev, curr) => {
-        return prev + curr.manifold.depth;
-      }, 0);
+    let min = Math.max(0, current - minItemsH);
+    let max = Math.min(steps.length, min + minItems);
 
-      if (index + min === current) {
-        p5.fill("green");
-      } else if (penetration > 6 && penetration < 3) {
-        p5.fill("red");
-      } else if (penetration > 3) {
-        p5.fill("orange");
-      } else if (hasCollision) {
-        p5.fill("yellow");
-      } else {
-        p5.fill(200);
+    let count = max - min;
+
+    if (count < minItems) {
+      min = max - minItems;
+      count = max - min;
+    }
+
+    {
+      const barHeight = 10;
+      const paddingX = 2;
+      const paddingY = 6;
+      const spacing = 1;
+      const barWidth =
+        (p5.windowWidth - paddingX * 2 - count * spacing) / count;
+      const barY = p5.windowHeight - height - barHeight - paddingY;
+
+      p5.fill(100);
+      p5.rect(0, barY - paddingY, p5.windowWidth, barHeight + paddingY * 2);
+
+      for (let index = 0; index < count; index++) {
+        const step = steps[index + min];
+        p5.noStroke();
+        const hasCollision = step.collisions.length > 0;
+        const penetration = step.collisions.reduce((prev, curr) => {
+          return prev + curr.manifold.depth;
+        }, 0);
+
+        if (index + min === current) {
+          p5.fill("green");
+        } else if (penetration > 6 && penetration < 3) {
+          p5.fill("red");
+        } else if (penetration > 3) {
+          p5.fill("orange");
+        } else if (hasCollision) {
+          p5.fill("yellow");
+        } else {
+          p5.fill("white");
+        }
+
+        const barX = paddingX + index * (barWidth + spacing);
+
+        p5.rect(barX, barY, barWidth, barHeight);
       }
-
-      p5.rect(
-        index * (barWidth + 1),
-        p5.windowHeight - height - barHeight,
-        barWidth,
-        barHeight
-      );
     }
 
     p5.pop();
