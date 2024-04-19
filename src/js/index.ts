@@ -289,13 +289,12 @@ new p5((p5Instance) => {
     p5.push();
     p5.fill("black");
     p5.textFont("mono", 4);
-    p5.textLeading(2);
     p5.textAlign(p5.LEFT, p5.CENTER);
     p5.text(
-      `pos: ${pos.x}, ${pos.y}\n
-vel: ${vel.x}, ${vel.y}\n
-velDelta: ${velDelta.x}, ${velDelta.y}\n
-velAng: ${angVel}\n
+      `pos: ${pos.x}, ${pos.y}
+vel: ${vel.x}, ${vel.y}
+velDelta: ${velDelta.x}, ${velDelta.y}
+velAng: ${angVel}
 velAngDelta: ${angVelDel}
 `,
       pos.x + r + 10,
@@ -340,36 +339,35 @@ velAngDelta: ${angVelDel}
   }
 
   function drawCollision(collision: Collision) {
-    const { manifold } = collision;
+    const { manifold, body } = collision;
     const { depth } = manifold;
-    const contact = v2(manifold.contact);
-    const normal = v2(manifold.normal)
-      .normalize()
-      .mult(depth * 10)
-      .add(contact);
+    const vel = v2(body.vel);
+    const a = v2(manifold.contact);
+    const b = v2(manifold.normal).normalize().mult(depth).add(a);
 
     p5.push();
 
     p5.noStroke();
-    p5.fill("rgba(255,0,0,0.8)");
-    p5.circle(contact.x, contact.y, 1);
+    p5.fill("rgba(255,160,160,.3)");
+    p5.circle(a.x, a.y, 1);
+    p5.circle(b.x, b.y, 1);
     p5.pop();
 
     p5.push();
-    p5.stroke("rgba(255,0,0,0.8)");
-    p5.line(contact.x, contact.y, normal.x, normal.y);
+    p5.stroke("rgba(255,160,160,.3)");
+    p5.line(a.x, a.y, b.x, b.y);
     p5.pop();
 
     p5.push();
     p5.fill("black");
     p5.textFont("mono", 4);
-    p5.textLeading(2);
     p5.textAlign(p5.RIGHT, p5.CENTER);
     p5.text(
       `depth: ${depth}
+vel: ${vel.x}, ${vel.y}
 `,
-      contact.x - 20,
-      contact.y
+      a.x - 20,
+      a.y
     );
     p5.pop();
   }
