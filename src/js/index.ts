@@ -150,8 +150,6 @@ new p5((p5Instance) => {
     steps = data.steps;
     staticBodies = data.static_bodies;
 
-    console.log("steps", steps);
-
     if (steps == null) return;
 
     stepsWithCollisions = steps
@@ -168,6 +166,8 @@ new p5((p5Instance) => {
 
     c.drop(handleFile);
 
+    controls.view.width = width;
+    controls.view.height = height;
     controls.view.x = width / 2 - 200;
     controls.view.y = height / 2 - 120;
     controls.view.zoom = 1.5;
@@ -394,7 +394,7 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
         }
         break;
       default:
-        console.log(shapeType);
+        console.warn("Shape type not handled", shapeType);
         break;
     }
   }
@@ -439,19 +439,28 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
   function mouseDragged(e: MouseEvent) {
     const { isDragging } = controls.viewPos;
 
-    const prevX = controls.viewPos.prevX || 0;
-    const prevY = controls.viewPos.prevY || 0;
+    const prevX = controls.viewPos.prevX;
+    const prevY = controls.viewPos.prevY;
 
     if (!isDragging) return;
 
     const pos = { x: e.clientX, y: e.clientY };
 
-    const dx = pos.x - prevX;
-    const dy = pos.y - prevY;
+    let dx = 0;
+    let dy = 0;
+
+    if (prevX != null) {
+      dx = pos.x - prevX;
+    }
+
+    if (prevY != null) {
+      dy = pos.y - prevY;
+    }
 
     if (prevX || prevY) {
       controls.view.x += dx;
       controls.view.y += dy;
+
       controls.viewPos.prevX = pos.x;
       controls.viewPos.prevY = pos.y;
     }
