@@ -137,7 +137,7 @@ new p5((p5Instance) => {
     });
 
     prevCol.mousePressed(() => {
-      const index = findPrevCollision();
+      const index = findPrevCollision()!;
       slider?.value(index);
     });
   }
@@ -401,7 +401,8 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
 
   function mouseWheel(event: MouseEvent) {
     const { width, height } = controls.view;
-    const { x, y, deltaY } = event;
+    const { x, y } = event;
+    const deltaY = event["deltaY"];
     const direction = deltaY > 0 ? -1 : 1;
 
     const factor = 0.8;
@@ -420,7 +421,7 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
 
   function mousePressed(e: MouseEvent) {
     const { target } = e;
-    const { nodeName } = target;
+    const nodeName = target["nodeName"];
     if (nodeName !== "CANVAS") return;
     controls.viewPos.isDragging = true;
     controls.viewPos.prevX = e.clientX;
@@ -429,7 +430,7 @@ velDelta: ${velDelta.x}, ${velDelta.y}\n
 
   function mouseReleased(e: MouseEvent) {
     const { target } = e;
-    const { nodeName } = target;
+    const nodeName = target["nodeName"];
     if (nodeName !== "CANVAS") return;
     controls.viewPos.isDragging = false;
     controls.viewPos.prevX = null;
