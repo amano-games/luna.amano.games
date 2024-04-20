@@ -540,6 +540,7 @@ velAngDelta: ${angVelDel}
 
   function drawCollisionInfo(collision: Collision) {
     const { manifold, body } = collision;
+    const pos = v2(body.pos);
     const { depth } = manifold;
     const a = v2(manifold.contact);
     const vel = v2(body.vel);
@@ -547,6 +548,7 @@ velAngDelta: ${angVelDel}
     p5.text(
       `depth: ${depth}
 vel: ${vel.x}, ${vel.y}
+p: ${pos.x}, ${pos.y}
 `,
       a.x - 20,
       a.y
