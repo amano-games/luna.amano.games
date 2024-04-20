@@ -567,6 +567,7 @@ velAngDelta: ${angVelDel}
     p5.text(
       `depth: ${depth}
 vel: ${bVel.x}, ${bVel.y}
+velM: ${bVel.mag()}
 p: ${pos.x}, ${pos.y}
 ra: ${ra.x}, ${ra.y}
 rb: ${rb.x}, ${rb.y}
