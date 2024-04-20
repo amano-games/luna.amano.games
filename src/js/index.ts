@@ -117,6 +117,7 @@ new P5((p5Instance) => {
 
   function handleFile(file: File) {
     const header = "data:application/x-javascript;base64,";
+    console.log(data);
     let encoded = file.data;
     encoded = encoded.slice(header.length);
     const data = JSON5.parse(atob(encoded));
@@ -345,8 +346,8 @@ new P5((p5Instance) => {
     const pos = v2(ball.pos);
     const posD = v2(ball.pos_d);
     const { ang_vel: angVel, ang_vel_d: angVelDel } = ball;
-    const vel = v2(ball.vel).mult(10).add(pos);
-    const velDelta = v2(ball.vel_d).mult(10).add(pos);
+    const vel = v2(ball.vel).mult(10);
+    const velDelta = v2(ball.vel_d).mult(10);
     const shape = ball.shape as ShapeCircle;
     const r = shape.r;
 
