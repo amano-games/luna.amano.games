@@ -74,6 +74,7 @@ export const colors = {
   ghost: aqua,
   contact01: yellow,
   contact02: orange,
+  tangent: yellow,
   velocity: carmin,
   angular: violet,
   collider: lila,

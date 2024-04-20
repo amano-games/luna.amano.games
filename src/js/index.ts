@@ -553,6 +553,16 @@ vel: ${vel.x}, ${vel.y}
     );
   }
 
+  function drawCollisionTan(collision: Collision) {
+    // const { depth } = collision.manifold.depth ;
+    const width = 10;
+    const normal = v2(collision.manifold.normal);
+    const tan = v2([normal.y, -normal.x]).normalize();
+    const a = v2(collision.manifold.contact).sub(tan.copy().mult(width / 2));
+    const b = a.copy().add(tan.mult(width));
+    p5.line(a.x, a.y, b.x, b.y);
+  }
+
   function drawCollision(collision: Collision) {
     p5.push();
     p5.fill(toColor(colors.contact01));
@@ -570,6 +580,12 @@ vel: ${vel.x}, ${vel.y}
     p5.fill(toColor(colors.black));
     p5.stroke(toColor(colors.black));
     drawCollisionDepth(collision);
+    p5.pop();
+
+    p5.push();
+    p5.fill(toColor(colors.tangent, opacity.s));
+    p5.stroke(toColor(colors.tangent, opacity.s));
+    drawCollisionTan(collision);
     p5.pop();
 
     p5.push();
