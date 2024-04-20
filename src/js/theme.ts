@@ -24,8 +24,9 @@ const aqua = [71, 255, 196];
 const carmin = [255, 71, 93];
 const blue = [116, 164, 183];
 const violet = [174, 80, 255];
-const lila = [176, 180, 233];
+const lila = [123, 130, 219];
 const gray = [180, 180, 180];
+const magenta = [255, 57, 244];
 
 export const text = {
   sizeS: 3,
@@ -44,6 +45,7 @@ export const colors = {
   violet,
   lila,
   white,
+  magenta,
 
   bg: [65, 65, 65],
   screen: white,
@@ -66,6 +68,7 @@ export const colors = {
   flippers: blue,
   penetration: black,
   ball: carmin,
+  ballCollided: magenta,
   ghost: aqua,
   contact01: yellow,
   contact02: orange,

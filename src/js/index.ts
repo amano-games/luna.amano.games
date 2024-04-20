@@ -3,11 +3,16 @@ import JSON5 from "json5";
 import P5, { File } from "p5";
 import type { Element } from "p5";
 import { colors, opacity, text } from "./theme";
+import { closestPointToLine } from "./utils";
 
 interface Controls {
   view: { x: number; y: number; width: number; height: number; zoom: number };
   viewPos: { prevX: null | number; prevY: null | number; isDragging: boolean };
 }
+
+const SHAPE_TYPE_CAPSULE = 3;
+const SHAPE_TYPE_POLY = 2;
+const SHAPE_TYPE_CIRCLE = 0;
 
 new P5((p5Instance) => {
   const p5 = p5Instance as unknown as P5;
@@ -311,19 +316,39 @@ new P5((p5Instance) => {
     p5.translate(cam_offset[0], cam_offset[1]);
 
     drawStaticBodies(staticBodies);
-    drawBall(ball);
-    drawCollisions(collisions);
+    drawBall(ball, step);
+    drawCollisions(ball, collisions);
 
     p5.pop();
   }
 
-  function drawCollisions(collisions: Collision[]) {
+  function drawCollisions(ball: Body, collisions: Collision[]) {
     collisions.forEach((item) => {
       p5.push();
       p5.fill(toColor(colors.collider));
       p5.stroke(toColor(colors.collider));
       drawCollisionShape(item.body);
       p5.pop();
+
+      if (item.body.shape_type.id == SHAPE_TYPE_CAPSULE) {
+        p5.push();
+
+        const shape = item.body.shape as ShapeCapsule;
+
+        const closest = closestPointToLine(
+          p5,
+          v2(shape.a),
+          v2(shape.b),
+          v2(ball.pos)
+        );
+        const r = p5.lerp(shape.ra, shape.rb, closest.t);
+
+        p5.fill(toColor(colors.collider, opacity.s));
+        p5.noStroke();
+        p5.circle(closest.x, closest.y, r * 2);
+
+        p5.pop();
+      }
 
       drawCollision(item);
     });
@@ -406,7 +431,7 @@ velAngDelta: ${angVelDel}
     p5.circle(pos.x, pos.y, 1);
   }
 
-  function drawBall(ball: Body) {
+  function drawBall(ball: Body, step: Step) {
     p5.push();
     p5.fill(toColor(colors.info, opacity.l));
     p5.textSize(text.sizeS);
@@ -419,9 +444,14 @@ velAngDelta: ${angVelDel}
     drawBallGhost(ball);
     p5.pop();
 
+    let color = colors.ball;
+    if (step.collisions.length > 0) {
+      color = colors.ballCollided;
+    }
+
     p5.push();
-    p5.stroke(toColor(colors.ball));
-    p5.fill(toColor(colors.ball));
+    p5.stroke(toColor(color));
+    p5.fill(toColor(color));
     drawBallShape(ball);
 
     p5.push();
@@ -510,14 +540,14 @@ vel: ${vel.x}, ${vel.y}
   function drawCollisionShape(body: Body) {
     const { shape_type: shapeType } = body;
     switch (shapeType.id) {
-      case 0:
+      case SHAPE_TYPE_CIRCLE:
         {
           const shape = body.shape as ShapeCircle;
           const p = v2(shape.p).add(v2(body.pos));
           p5.circle(p.x, p.y, shape.r * 2);
         }
         break;
-      case 2:
+      case SHAPE_TYPE_POLY:
         {
           const shape = body.shape as ShapePolygon;
           p5.beginShape();
@@ -528,32 +558,36 @@ vel: ${vel.x}, ${vel.y}
           p5.endShape(p5.CLOSE);
         }
         break;
-      case 3:
+      case SHAPE_TYPE_CAPSULE:
         {
           const shape = body.shape as ShapeCapsule;
           const a = v2(shape.a);
           const b = v2(shape.b);
           const { ra, rb } = shape;
 
+          p5.push();
+          p5.noFill();
           p5.circle(a.x, a.y, ra * 2);
           p5.circle(b.x, b.y, rb * 2);
+          p5.pop();
 
           p5.line(a.x, a.y, b.x, b.y);
 
-          const theta = Math.atan2(b.y - a.y, b.x - a.x);
-          const rot = {
-            c: Math.cos(theta),
-            s: Math.sin(theta),
-          };
+          // const theta = Math.atan2(b.y - a.y, b.x - a.x);
 
-          const tan_1_a = { x: a.x + ra * rot.c, y: a.y - ra * rot.s };
-          const tan_1_b = { x: b.x + rb * rot.c, y: b.y - rb * rot.s };
+          // const rot = {
+          //   c: Math.cos(theta),
+          //   s: Math.sin(theta),
+          // };
 
-          const tan_2_a = { x: a.x - ra * rot.c, y: a.y + ra * rot.s };
-          const tan_2_b = { x: b.x - rb * rot.c, y: b.y + rb * rot.s };
-
-          p5.line(tan_1_a.x, tan_1_a.y, tan_1_b.x, tan_1_b.y);
-          p5.line(tan_2_a.x, tan_2_a.y, tan_2_b.x, tan_2_b.y);
+          // const tan_1_a = { x: a.x + ra * rot.c, y: a.y - ra * rot.s };
+          // const tan_1_b = { x: b.x + rb * rot.c, y: b.y - rb * rot.s };
+          //
+          // const tan_2_a = { x: a.x - ra * rot.c, y: a.y + ra * rot.s };
+          // const tan_2_b = { x: b.x - rb * rot.c, y: b.y + rb * rot.s };
+          //
+          // p5.line(tan_1_a.x, tan_1_a.y, tan_1_b.x, tan_1_b.y);
+          // p5.line(tan_2_a.x, tan_2_a.y, tan_2_b.x, tan_2_b.y);
         }
         break;
       default:
