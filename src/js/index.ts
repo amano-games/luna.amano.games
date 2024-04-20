@@ -117,7 +117,6 @@ new P5((p5Instance) => {
 
   function handleFile(file: File) {
     const header = "data:application/x-javascript;base64,";
-    console.log(data);
     let encoded = file.data;
     encoded = encoded.slice(header.length);
     const data = JSON5.parse(atob(encoded));
