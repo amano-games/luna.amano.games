@@ -360,7 +360,7 @@ new P5((p5Instance) => {
         drawFlipperCollider(item, ball);
       }
 
-      drawCollision(item);
+      drawCollision(ball, item);
     });
   }
 
@@ -538,20 +538,45 @@ velAngDelta: ${angVelDel}
     p5.line(a.x, a.y, b.x, b.y);
   }
 
-  function drawCollisionInfo(collision: Collision) {
-    const { manifold, body } = collision;
-    const pos = v2(body.pos);
+  function drawCollisionInfo(a: Body, collision: Collision) {
+    const { manifold, body: b } = collision;
+    const pos = v2(b.pos);
     const { depth } = manifold;
-    const a = v2(manifold.contact);
-    const vel = v2(body.vel);
+
+    const aVel = v2(a.vel);
+    const bVel = v2(b.vel);
+
+    const start = v2(manifold.contact);
+    const end = v2(manifold.normal).normalize().mult(depth).add(start);
+
+    const ra = end.copy().sub(a.pos);
+    const rb = start.copy().sub(b.pos);
+
+    const va = aVel
+      .copy()
+      .add(p5.createVector(-a.ang_vel * ra.y, a.ang_vel * ra.x));
+    const vb = bVel
+      .copy()
+      .add(p5.createVector(-b.ang_vel * rb.y, b.ang_vel * rb.x));
+    const rv = va.copy().sub(vb);
+
+    const rvLen = rv.magSq();
+    // v2 va = v2_add(a->vel, (v2){-a->ang_vel * ra.y, a->ang_vel * ra.x});
+    // v2 vb = v2_add(b->vel, (v2){-b->ang_vel * rb.y, b->ang_vel * rb.x});
 
     p5.text(
       `depth: ${depth}
-vel: ${vel.x}, ${vel.y}
+vel: ${bVel.x}, ${bVel.y}
 p: ${pos.x}, ${pos.y}
+ra: ${ra.x}, ${ra.y}
+rb: ${rb.x}, ${rb.y}
+va: ${va.x}, ${va.y}
+vb: ${vb.x}, ${vb.y}
+rv: ${rv.x}, ${rv.y}
+rvL: ${rvLen}
 `,
-      a.x - 20,
-      a.y
+      start.x - 20,
+      start.y
     );
   }
 
@@ -565,7 +590,7 @@ p: ${pos.x}, ${pos.y}
     p5.line(a.x, a.y, b.x, b.y);
   }
 
-  function drawCollision(collision: Collision) {
+  function drawCollision(ball: Body, collision: Collision) {
     p5.push();
     p5.fill(toColor(colors.contact01));
     p5.noStroke();
@@ -594,7 +619,7 @@ p: ${pos.x}, ${pos.y}
     p5.textAlign(p5.RIGHT, p5.CENTER);
     p5.textSize(text.sizeS);
     p5.fill(toColor(colors.info, opacity.l));
-    drawCollisionInfo(collision);
+    drawCollisionInfo(ball, collision);
     p5.pop();
   }
 
