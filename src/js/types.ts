@@ -18,6 +18,7 @@ interface Body {
   shape_type: { id: number; label: string };
   shape: ShapeCircle | ShapeCapsule | ShapePolygon;
   pos: [number, number];
+  pos_d: [number, number];
   ang_vel: number;
   ang_vel_d: number;
   vel: [number, number];

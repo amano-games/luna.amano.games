@@ -42,7 +42,8 @@ new P5((p5Instance) => {
   function nextStep() {
     if (slider == null || steps == null) return;
     const current = Number(slider.value());
-    slider.value(Math.min(current + 1, steps.length - 1));
+    const next = Math.min(current + 1, steps.length - 1);
+    slider.value(next);
   }
 
   function prevStep() {
@@ -144,11 +145,6 @@ new P5((p5Instance) => {
     controls.view.x = width / 2 - 200;
     controls.view.y = height / 2 - 120;
     controls.view.zoom = 1.5;
-
-    Object.entries(colors).forEach(([key, value]) => {
-      console.log(key, value);
-      console.log(key, toColor(value));
-    });
 
     p5.strokeWeight(0.5);
 
@@ -347,6 +343,7 @@ new P5((p5Instance) => {
 
   function drawBallInfo(ball: Body) {
     const pos = v2(ball.pos);
+    const posD = v2(ball.pos_d);
     const { ang_vel: angVel, ang_vel_d: angVelDel } = ball;
     const vel = v2(ball.vel).mult(10).add(pos);
     const velDelta = v2(ball.vel_d).mult(10).add(pos);
@@ -359,12 +356,13 @@ new P5((p5Instance) => {
     p5.textAlign(p5.LEFT, p5.CENTER);
     p5.text(
       `pos: ${pos.x}, ${pos.y}
+posDelta: ${posD.x}, ${posD.y}
 vel: ${vel.x}, ${vel.y}
 velDelta: ${velDelta.x}, ${velDelta.y}
 velAng: ${angVel}
 velAngDelta: ${angVelDel}
 `,
-      pos.x + r + 10,
+      pos.x + r + 2,
       pos.y - r
     );
 
@@ -373,7 +371,9 @@ velAngDelta: ${angVelDel}
 
   function drawBallGhost(ball: Body) {
     const pos = v2(ball.pos);
-    const posN = v2(ball.vel).add(pos);
+    const posD = v2(ball.pos_d);
+    const velD = v2(ball.vel_d);
+    const posN = v2(ball.vel).add(pos).add(velD).add(posD);
     const shape = ball.shape as ShapeCircle;
     const r = shape.r;
 

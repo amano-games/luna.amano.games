@@ -28,7 +28,7 @@ const lila = [176, 180, 233];
 const gray = [180, 180, 180];
 
 export const text = {
-  sizeS: 10,
+  sizeS: 3,
   sizeM: 20,
   sizeL: 25,
 };
