@@ -131,12 +131,23 @@ new P5((p5Instance) => {
     if (steps == null) return;
 
     let frameIndex = 0;
+    let physicsStepIndex = 0;
     steps.map((current: Step) => {
       if (current.name == "tick start") {
         frameIndex += 1;
       }
 
+      if (current.name == "physics step start") {
+        physicsStepIndex += 1;
+      }
+
       current.frameIndex = frameIndex;
+
+      if (current.name == "physics end") {
+        physicsStepIndex = 0;
+      }
+
+      current.physicsStepIndex = physicsStepIndex;
 
       return current;
     });
@@ -257,7 +268,9 @@ new P5((p5Instance) => {
     if (slider) {
       p5.textAlign(p5.RIGHT, p5.CENTER);
       p5.text(
-        `frame: ${step.frameIndex} step: ${slider?.value()}`,
+        `frame: ${step.frameIndex} physics: ${
+          step.physicsStepIndex
+        } step: ${slider?.value()}`,
         x + width - padding,
         y + padding
       );

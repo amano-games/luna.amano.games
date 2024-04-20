@@ -40,4 +40,5 @@ interface Step {
   cam_offset: [number, number];
   collisions: Collision[];
   frameIndex: undefined | number;
+  physicsStepIndex: undefined | number;
 }
