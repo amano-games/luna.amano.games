@@ -39,4 +39,5 @@ interface Step {
   ball: Body;
   cam_offset: [number, number];
   collisions: Collision[];
+  frameIndex: undefined | number;
 }

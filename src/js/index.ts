@@ -130,6 +130,17 @@ new P5((p5Instance) => {
 
     if (steps == null) return;
 
+    let frameIndex = 0;
+    steps.map((current: Step) => {
+      if (current.name == "tick start") {
+        frameIndex += 1;
+      }
+
+      current.frameIndex = frameIndex;
+
+      return current;
+    });
+
     stepsWithCollisions = steps
       .map((item, i) => (item.collisions.length > 0 ? i : null))
       .filter(Boolean) as number[];
@@ -245,7 +256,11 @@ new P5((p5Instance) => {
 
     if (slider) {
       p5.textAlign(p5.RIGHT, p5.CENTER);
-      p5.text(slider?.value(), x + width - padding, y + padding);
+      p5.text(
+        `frame: ${step.frameIndex} step: ${slider?.value()}`,
+        x + width - padding,
+        y + padding
+      );
     }
 
     p5.pop();
