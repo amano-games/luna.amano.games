@@ -382,16 +382,16 @@ new P5((p5Instance) => {
     p5.circle(closest.x, closest.y, r * 2);
     p5.pop();
 
-    p5.circle(closest.x, closest.y, 1);
+    if (vel.mag() > 0) {
+      const a = p5.createVector(closest.x, closest.y);
+      const b = a.add(vel.mult(10));
 
-    const a = p5.createVector(closest.x, closest.y);
-    const b = a.add(vel.mult(10));
-
-    p5.push();
-    p5.fill(toColor(colors.flipperVel));
-    p5.stroke(toColor(colors.flipperVel));
-    arrow(closest.x, closest.y, b.x, b.y);
-    p5.pop();
+      p5.push();
+      p5.fill(toColor(colors.flipperVel));
+      p5.stroke(toColor(colors.flipperVel));
+      arrow(closest.x, closest.y, b.x, b.y);
+      p5.pop();
+    }
 
     p5.pop();
   }
@@ -600,6 +600,8 @@ p: ${pos.x}, ${pos.y}
 
   function drawCollisionShape(body: Body) {
     const { shape_type: shapeType } = body;
+    const p = v2(body.pos);
+
     switch (shapeType.id) {
       case SHAPE_TYPE_CIRCLE:
         {
@@ -655,6 +657,8 @@ p: ${pos.x}, ${pos.y}
         console.warn("Shape type not handled", shapeType);
         break;
     }
+
+    p5.circle(p.x, p.y, 1);
   }
 
   function keyPressed() {
