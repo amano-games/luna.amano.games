@@ -27,6 +27,7 @@ const violet = [174, 80, 255];
 const lila = [123, 130, 219];
 const gray = [180, 180, 180];
 const magenta = [255, 57, 244];
+const green = [99, 169, 47];
 
 export const text = {
   sizeS: 3,
@@ -46,6 +47,7 @@ export const colors = {
   lila,
   white,
   magenta,
+  green,
 
   bg: [65, 65, 65],
   screen: white,
@@ -75,4 +77,6 @@ export const colors = {
   velocity: carmin,
   angular: violet,
   collider: lila,
+
+  flipperVel: green,
 };

@@ -207,10 +207,8 @@ new P5((p5Instance) => {
     p5.line(start.x, start.y, end.x, end.y);
 
     p5.push();
-
     p5.noStroke();
     p5.circle(end.x, end.y, 1);
-
     p5.pop();
   }
 
@@ -331,27 +329,43 @@ new P5((p5Instance) => {
       p5.pop();
 
       if (item.body.shape_type.id == SHAPE_TYPE_CAPSULE) {
-        p5.push();
-
-        const shape = item.body.shape as ShapeCapsule;
-
-        const closest = closestPointToLine(
-          p5,
-          v2(shape.a),
-          v2(shape.b),
-          v2(ball.pos)
-        );
-        const r = p5.lerp(shape.ra, shape.rb, closest.t);
-
-        p5.fill(toColor(colors.collider, opacity.s));
-        p5.noStroke();
-        p5.circle(closest.x, closest.y, r * 2);
-
-        p5.pop();
+        drawFlipperCollider(item, ball);
       }
 
       drawCollision(item);
     });
+  }
+
+  function drawFlipperCollider(collision: Collision, ball: Body) {
+    const { body } = collision;
+    const vel = v2(body.vel);
+    const shape = body.shape as ShapeCapsule;
+
+    p5.push();
+
+    const closest = closestPointToLine(v2(shape.a), v2(shape.b), v2(ball.pos));
+    const r = p5.lerp(shape.ra, shape.rb, closest.t);
+
+    p5.fill(toColor(colors.collider, opacity.s));
+    p5.stroke(toColor(colors.collider, opacity.s));
+
+    p5.push();
+    p5.noStroke();
+    p5.circle(closest.x, closest.y, r * 2);
+    p5.pop();
+
+    p5.circle(closest.x, closest.y, 1);
+
+    const a = p5.createVector(closest.x, closest.y);
+    const b = a.add(vel.mult(10));
+
+    p5.push();
+    p5.fill(toColor(colors.flipperVel));
+    p5.stroke(toColor(colors.flipperVel));
+    arrow(closest.x, closest.y, b.x, b.y);
+    p5.pop();
+
+    p5.pop();
   }
 
   function drawStaticBodies(bodies: Body[]) {
@@ -413,11 +427,12 @@ velAngDelta: ${angVelDel}
   }
 
   function drawBallVelDelta(ball: Body) {
-    const pos = v2(ball.pos);
-    const velDelta = v2(ball.vel_d).mult(10).add(pos);
+    const velDelta = v2(ball.vel_d);
+    const a = v2(ball.pos);
+    const b = v2(ball.vel_d).mult(10).add(a);
 
     if (velDelta.x + velDelta.y != 0) {
-      arrow(pos.x, pos.y, velDelta.x, velDelta.y);
+      arrow(a.x, a.y, b.x, b.y);
     }
   }
 

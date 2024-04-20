@@ -4,7 +4,7 @@ export function clamp(number: number, min: number, max: number) {
   return Math.max(min, Math.min(number, max));
 }
 
-export function closestPointToLine(p5: p5, a: Vector, b: Vector, c: Vector) {
+export function closestPointToLine(a: Vector, b: Vector, c: Vector) {
   const res = {
     x: 0,
     y: 0,
