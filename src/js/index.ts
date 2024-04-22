@@ -122,11 +122,22 @@ new P5((p5Instance) => {
 
   function handleFile(file: File) {
     const header = "data:application/x-javascript;base64,";
-    let encoded = file.data;
-    encoded = encoded.slice(header.length);
-    const data = JSON5.parse(atob(encoded));
-    steps = data.steps;
-    staticBodies = data.static_bodies;
+    const { type } = file;
+
+    if (type == "application") {
+      let encoded = file.data;
+      encoded = encoded.slice(header.length);
+      const data = JSON5.parse(atob(encoded));
+      steps = data.steps;
+      staticBodies = data.static_bodies;
+    } else if (type == "text") {
+      const data = JSON5.parse(file.data);
+      steps = data.steps;
+      staticBodies = data.static_bodies;
+    } else {
+      console.warn("Unknown file  type", type);
+      return;
+    }
 
     if (steps == null) return;
 
