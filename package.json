@@ -1,5 +1,5 @@
 {
-  "name": "physics-steps.amano.games",
+  "name": "Luna debugger",
   "version": "1.0.0",
   "description": "Physics debugger for a pinball game",
   "main": "index.js",
