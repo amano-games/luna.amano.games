@@ -56,10 +56,11 @@ export const colors = {
   screenBorder: fullBlack,
   text: fullBlack,
 
-  cool: aqua,
-  warm01: yellow,
-  warm02: orange,
-  warm03: carmin,
+  cool: [44, 162, 95],
+  warm01: [255, 255, 178],
+  warm02: [254, 204, 92],
+  warm03: [253, 141, 60],
+  warm04: [227, 26, 28],
 
   infoBg: fullBlack,
   infoFg: white,

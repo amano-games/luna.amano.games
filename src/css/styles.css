@@ -1,3 +1,15 @@
+/* CSS */
+:root {
+  font-family: Inter, sans-serif;
+  font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
+}
+
+@supports (font-variation-settings: normal) {
+  :root {
+    font-family: InterVariable, sans-serif;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -6,6 +18,10 @@
 
 * {
   margin: 0;
+}
+
+input {
+  accent-color: #fe9509;
 }
 
 body {
@@ -44,14 +60,31 @@ h6 {
   flex-flow: row;
   align-items: center;
   justify-content: center;
-  gap: 1em;
-  background: black;
+  background: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 1em 2em;
+  gap: 1em;
+  padding: 0.5em 1em;
   border-radius: 2px;
   width: 100%;
   position: fixed;
   top: 0;
+}
+
+.wrapper-filters {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 1em;
+  gap: 0.5em;
+  border-radius: 2px;
+  width: max-content;
+  position: fixed;
+  top: 50% !important;
+  left: 0;
+  transform: translateY(-50%);
 }
 
 button {
@@ -62,7 +95,7 @@ button {
 
   cursor: pointer;
 
-  padding: 2px 16px;
+  padding: 0px 8px;
   background: white;
   color: black;
   border: 1px solid white;

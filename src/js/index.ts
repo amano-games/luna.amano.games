@@ -30,11 +30,13 @@ new P5((p5Instance) => {
   let canvas: Renderer | undefined;
   let slider: Element | undefined;
   let wrapper: Element | undefined;
+  let wrapperFilters: Element | undefined;
   let buttonNext: Element | undefined;
   let buttonPrev: Element | undefined;
   let buttonNextCol: Element | undefined;
   let buttonPrevCol: Element | undefined;
   let checkboxExtraInfo: (Element & { checked?: Function }) | undefined;
+  let checkboxCam: (Element & { checked?: Function }) | undefined;
 
   const controls: Controls = {
     view: { x: 0, y: 0, width: 0, height: 0, zoom: 1 },
@@ -85,15 +87,23 @@ new P5((p5Instance) => {
     if (buttonPrev != null) buttonPrev.remove();
     if (buttonPrevCol != null) buttonPrevCol.remove();
     if (checkboxExtraInfo != null) checkboxExtraInfo.remove();
+    if (checkboxCam != null) checkboxCam.remove();
 
     if (steps == null) return;
 
     wrapper = p5.createDiv();
     wrapper.addClass("wrapper");
-    wrapper.position(0, 0);
 
-    checkboxExtraInfo = p5.createCheckbox(" show extra info");
-    checkboxExtraInfo.parent(wrapper);
+    wrapperFilters = p5.createDiv();
+    wrapperFilters.addClass("wrapper-filters");
+    wrapperFilters.position(0, 0);
+
+    checkboxExtraInfo = p5.createCheckbox(" extra info");
+    checkboxExtraInfo.parent(wrapperFilters);
+
+    checkboxCam = p5.createCheckbox(" cam");
+    checkboxCam.parent(wrapperFilters);
+    checkboxCam.checked(true);
 
     buttonPrevCol = p5.createButton("<<");
     buttonPrevCol.parent(wrapper);
@@ -185,6 +195,7 @@ new P5((p5Instance) => {
   }
 
   function setup() {
+    p5.textFont("Inter");
     p5.colorMode(p5.RGB, 255);
     const width = p5.windowWidth;
     const height = p5.windowHeight;
@@ -229,7 +240,7 @@ new P5((p5Instance) => {
 
       drawStep(step);
 
-      const infoHeight = 50;
+      const infoHeight = 40;
       const timelineHeight = 20;
       const stepsInfoY = p5.windowHeight - infoHeight;
 
@@ -282,9 +293,9 @@ new P5((p5Instance) => {
     p5.push();
     p5.resetMatrix();
 
-    const padding = 20;
+    const padding = 15;
 
-    p5.fill(toColor(colors.infoBg));
+    p5.fill(toColor(colors.infoBg, opacity.s));
     p5.rect(x, y, p5.windowWidth, height);
 
     p5.fill(toColor(colors.infoFg, opacity.l));
@@ -332,7 +343,7 @@ new P5((p5Instance) => {
     p5.push();
     p5.resetMatrix();
 
-    p5.fill(toColor(colors.timelineBg));
+    p5.fill(toColor(colors.timelineBg, opacity.s));
     p5.rect(x, y, width, height);
 
     for (let index = 0; index < count; index++) {
@@ -344,15 +355,15 @@ new P5((p5Instance) => {
       }, 0);
 
       if (index + min === current) {
-        p5.fill(toColor(colors.aqua));
+        p5.fill(toColor(colors.cool, 1.0));
       } else if (penetration > 6 && penetration < 3) {
-        p5.fill(toColor(colors.warm03));
+        p5.fill(toColor(colors.warm04, 1.0));
       } else if (penetration > 3) {
-        p5.fill(toColor(colors.warm02));
+        p5.fill(toColor(colors.warm03, 1.0));
       } else if (hasCollision) {
-        p5.fill(toColor(colors.warm01));
+        p5.fill(toColor(colors.warm02, 1.0));
       } else {
-        p5.fill(toColor(colors.timelineFg));
+        p5.fill(toColor(colors.timelineBg, 1.0));
       }
 
       const barX = paddingX + index * (barWidth + spacing);
@@ -460,7 +471,9 @@ new P5((p5Instance) => {
     drawStaticBodies(staticBodies);
     drawBall(ball, step);
     drawCollisions(ball, collisions);
-    drawCamData(cam_offset, cam_data);
+    if (checkboxCam?.checked()) {
+      drawCamData(cam_offset, cam_data);
+    }
 
     p5.pop();
   }
