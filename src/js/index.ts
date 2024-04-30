@@ -2,7 +2,7 @@
 import JSON5 from "json5";
 
 import P5, { File } from "p5";
-import type { Element } from "p5";
+import type { Element, Renderer } from "p5";
 import { colors, opacity, text } from "./theme";
 import { closestPointToLine, outerTangents } from "./utils";
 import defaultData from "./data.json";
@@ -27,6 +27,7 @@ new P5((p5Instance) => {
   let staticBodies: Body[] | undefined;
   let stepsWithCollisions: number[] | undefined;
 
+  let canvas: Renderer | undefined;
   let slider: Element | undefined;
   let wrapper: Element | undefined;
   let buttonNext: Element | undefined;
@@ -186,10 +187,10 @@ new P5((p5Instance) => {
   function setup() {
     p5.colorMode(p5.RGB, 255);
     const width = p5.windowWidth;
-    const height = p5.windowHeight - 10;
-    const c = p5.createCanvas(width, height);
+    const height = p5.windowHeight;
+    canvas = p5.createCanvas(width, height);
 
-    c.drop(handleFile);
+    canvas.drop(handleFile);
     if (import.meta.env.MODE == "development") {
       setData(defaultData as unknown as Data);
     }
@@ -948,6 +949,10 @@ rvL: ${rvLen}
     }
   }
 
+  function windowResized() {
+    p5.resizeCanvas(p5.windowWidth, p5.windowHeight);
+  }
+
   p5.setup = setup;
   p5.draw = draw;
   p5.keyPressed = keyPressed;
@@ -955,4 +960,5 @@ rvL: ${rvLen}
   p5.mouseDragged = mouseDragged;
   p5.mousePressed = mousePressed;
   p5.mouseReleased = mouseReleased;
+  p5.windowResized = windowResized;
 }, document.getElementById("app")!);
