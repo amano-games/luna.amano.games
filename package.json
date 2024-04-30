@@ -1,6 +1,6 @@
 {
-  "name": "Luna debugger",
-  "version": "1.0.0",
+  "name": "luna-tools",
+  "version": "0.1.0",
   "description": "Physics debugger for a pinball game",
   "main": "index.js",
   "repository": "git@github.com:amano-games/physics-steps.git",

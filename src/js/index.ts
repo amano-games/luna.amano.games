@@ -16,6 +16,9 @@ const SHAPE_TYPE_CAPSULE = 3;
 const SHAPE_TYPE_POLY = 2;
 const SHAPE_TYPE_CIRCLE = 0;
 
+// if (import.meta.env.MODE == "development") {
+console.log(`🌚🛠️ Luna tools: ${__APP_VERSION__}`);
+
 new P5((p5Instance) => {
   const p5 = p5Instance as unknown as P5;
 
