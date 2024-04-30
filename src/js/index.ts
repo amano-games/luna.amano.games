@@ -30,7 +30,7 @@ new P5((p5Instance) => {
   let buttonPrev: Element | undefined;
   let buttonNextCol: Element | undefined;
   let buttonPrevCol: Element | undefined;
-  let checkboxExtraInfo: Element | undefined;
+  let checkboxExtraInfo: (Element & { checked?: Function }) | undefined;
 
   const controls: Controls = {
     view: { x: 0, y: 0, width: 0, height: 0, zoom: 1 },
