@@ -1,9 +1,11 @@
+/// <reference types="vite/client" />
 import JSON5 from "json5";
 
 import P5, { File } from "p5";
 import type { Element } from "p5";
 import { colors, opacity, text } from "./theme";
-import { closestPointToLine } from "./utils";
+import { closestPointToLine, outerTangents } from "./utils";
+import defaultData from "./data.json";
 
 interface Controls {
   view: { x: number; y: number; width: number; height: number; zoom: number };
@@ -120,24 +122,9 @@ new P5((p5Instance) => {
     });
   }
 
-  function handleFile(file: File) {
-    const header = "data:application/x-javascript;base64,";
-    const { type } = file;
-
-    if (type == "application") {
-      let encoded = file.data;
-      encoded = encoded.slice(header.length);
-      const data = JSON5.parse(atob(encoded));
-      steps = data.steps;
-      staticBodies = data.static_bodies;
-    } else if (type == "text") {
-      const data = JSON5.parse(file.data);
-      steps = data.steps;
-      staticBodies = data.static_bodies;
-    } else {
-      console.warn("Unknown file  type", type);
-      return;
-    }
+  function setData(data: Data) {
+    steps = data.steps;
+    staticBodies = data.static_bodies;
 
     if (steps == null) return;
 
@@ -170,6 +157,24 @@ new P5((p5Instance) => {
     createControls();
   }
 
+  function handleFile(file: File) {
+    const header = "data:application/x-javascript;base64,";
+    const { type } = file;
+
+    if (type == "application") {
+      let encoded = file.data;
+      encoded = encoded.slice(header.length);
+      const data = JSON5.parse(atob(encoded));
+      setData(data);
+    } else if (type == "text") {
+      const data = JSON5.parse(file.data);
+      setData(data);
+    } else {
+      console.warn("Unknown file  type", type);
+      return;
+    }
+  }
+
   function setup() {
     p5.colorMode(p5.RGB, 255);
     const width = p5.windowWidth;
@@ -177,6 +182,10 @@ new P5((p5Instance) => {
     const c = p5.createCanvas(width, height);
 
     c.drop(handleFile);
+    if (import.meta.env.MODE == "development") {
+      setData(defaultData as unknown as Data);
+      slider.value(3877);
+    }
 
     controls.view.width = width;
     controls.view.height = height;
@@ -673,21 +682,14 @@ rvL: ${rvLen}
 
           p5.line(a.x, a.y, b.x, b.y);
 
-          // const theta = Math.atan2(b.y - a.y, b.x - a.x);
+          const tans = outerTangents(a.x, a.y, ra, b.x, b.y, rb);
 
-          // const rot = {
-          //   c: Math.cos(theta),
-          //   s: Math.sin(theta),
-          // };
-
-          // const tan_1_a = { x: a.x + ra * rot.c, y: a.y - ra * rot.s };
-          // const tan_1_b = { x: b.x + rb * rot.c, y: b.y - rb * rot.s };
-          //
-          // const tan_2_a = { x: a.x - ra * rot.c, y: a.y + ra * rot.s };
-          // const tan_2_b = { x: b.x - rb * rot.c, y: b.y + rb * rot.s };
-          //
-          // p5.line(tan_1_a.x, tan_1_a.y, tan_1_b.x, tan_1_b.y);
-          // p5.line(tan_2_a.x, tan_2_a.y, tan_2_b.x, tan_2_b.y);
+          tans.forEach((line) => {
+            const [la, lb] = line;
+            const [lax, lay] = la;
+            const [lbx, lby] = lb;
+            p5.line(lax, lay, lbx, lby);
+          });
         }
         break;
       default:

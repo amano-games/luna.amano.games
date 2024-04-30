@@ -1,3 +1,8 @@
+interface Data {
+  steps: Step[];
+  static_bodies: Body[];
+}
+
 interface ShapeCircle {
   p: [number, number];
   r: number;
