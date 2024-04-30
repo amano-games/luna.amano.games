@@ -1,8 +1,10 @@
+const opacityXS = 0.2;
 const opacityS = 0.6;
 const opacityM = 0.8;
 const opacityL = 1.0;
 
 export const opacity = {
+  xs: opacityXS,
   s: opacityS,
   m: opacityM,
   l: opacityL,

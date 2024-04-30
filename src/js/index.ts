@@ -184,7 +184,6 @@ new P5((p5Instance) => {
     c.drop(handleFile);
     if (import.meta.env.MODE == "development") {
       setData(defaultData as unknown as Data);
-      slider.value(3877);
     }
 
     controls.view.width = width;
@@ -392,10 +391,28 @@ new P5((p5Instance) => {
     p5.push();
 
     const closest = closestPointToLine(v2(shape.a), v2(shape.b), v2(ball.pos));
+    const closestTangent = closestPointToLine(
+      v2(shape.a),
+      v2(shape.b),
+      v2(body.pos)
+    );
+
+    {
+      let dist = 0;
+      const a = p5.createVector(closestTangent.x, closestTangent.y);
+      const b = p5.createVector(closest.x, closest.y);
+      dist = a.sub(b).mag();
+      p5.push();
+      p5.textSize(text.sizeS);
+      p5.textAlign(p5.LEFT, p5.CENTER);
+      p5.text(`dist: ${dist}`, closest.x + 10, closest.y);
+      p5.pop();
+    }
+
     const r = p5.lerp(shape.ra, shape.rb, closest.t);
 
-    p5.fill(toColor(colors.collider, opacity.s));
-    p5.stroke(toColor(colors.collider, opacity.s));
+    p5.fill(toColor(colors.collider, opacity.xs));
+    p5.stroke(toColor(colors.collider, opacity.xs));
 
     p5.push();
     p5.noStroke();
@@ -683,6 +700,16 @@ rvL: ${rvLen}
           p5.line(a.x, a.y, b.x, b.y);
 
           const tans = outerTangents(a.x, a.y, ra, b.x, b.y, rb);
+          const closest = closestPointToLine(
+            v2(shape.a),
+            v2(shape.b),
+            p.copy()
+          );
+          const r = p5.lerp(shape.ra, shape.rb, closest.t);
+          p5.push();
+          p5.noStroke();
+          p5.circle(closest.x, closest.y, r * 2);
+          p5.pop();
 
           tans.forEach((line) => {
             const [la, lb] = line;
@@ -697,7 +724,10 @@ rvL: ${rvLen}
         break;
     }
 
-    p5.circle(p.x, p.y, 1);
+    p5.push();
+    p5.noStroke();
+    p5.circle(p.x, p.y, 1.0);
+    p5.pop();
   }
 
   function keyPressed() {
