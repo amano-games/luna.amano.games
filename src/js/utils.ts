@@ -11,8 +11,8 @@ export function closestPointToLine(a: Vector, b: Vector, c: Vector) {
     t: 0,
   };
 
-  const ab = b.sub(a);
-  const ac = c.sub(a);
+  const ab = b.copy().sub(a);
+  const ac = c.copy().sub(a);
 
   // project c onto ab, computing parametrized position
   let t = ac.dot(ab) / ab.dot(ab);
@@ -22,7 +22,7 @@ export function closestPointToLine(a: Vector, b: Vector, c: Vector) {
   if (t > 1.0) t = 1.0;
 
   // Compute projected position from the clamped t
-  let d = a.add(ab.mult(t));
+  let d = a.copy().add(ab.mult(t));
 
   res.x = d.x;
   res.y = d.y;

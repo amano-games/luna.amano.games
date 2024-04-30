@@ -30,6 +30,7 @@ new P5((p5Instance) => {
   let buttonPrev: Element | undefined;
   let buttonNextCol: Element | undefined;
   let buttonPrevCol: Element | undefined;
+  let checkboxExtraInfo: Element | undefined;
 
   const controls: Controls = {
     view: { x: 0, y: 0, width: 0, height: 0, zoom: 1 },
@@ -79,12 +80,16 @@ new P5((p5Instance) => {
     if (buttonNextCol != null) buttonNextCol.remove();
     if (buttonPrev != null) buttonPrev.remove();
     if (buttonPrevCol != null) buttonPrevCol.remove();
+    if (checkboxExtraInfo != null) checkboxExtraInfo.remove();
 
     if (steps == null) return;
 
     wrapper = p5.createDiv();
     wrapper.addClass("wrapper");
     wrapper.position(0, 0);
+
+    checkboxExtraInfo = p5.createCheckbox(" show extra info");
+    checkboxExtraInfo.parent(wrapper);
 
     buttonPrevCol = p5.createButton("<<");
     buttonPrevCol.parent(wrapper);
@@ -368,7 +373,7 @@ new P5((p5Instance) => {
   }
 
   function drawCollisions(ball: Body, collisions: Collision[]) {
-    collisions.forEach((item) => {
+    collisions.forEach((item, i) => {
       p5.push();
       p5.fill(toColor(colors.collider));
       p5.stroke(toColor(colors.collider));
@@ -377,10 +382,43 @@ new P5((p5Instance) => {
 
       if (item.body.shape_type.id == SHAPE_TYPE_CAPSULE) {
         drawFlipperCollider(item, ball);
+        // drawClosestPointToTangets(item, ball);
       }
 
-      drawCollision(ball, item);
+      drawCollision(ball, item, i);
     });
+  }
+
+  function drawClosestPointToTangets(collision: Collision, ball: Body) {
+    const { body } = collision;
+    const shape = body.shape as ShapeCapsule;
+    const a = v2(shape.a);
+    const b = v2(shape.b);
+    const { ra, rb } = shape;
+
+    const tangents = outerTangents(a.x, a.y, ra, b.x, b.y, rb).map((line) => {
+      return {
+        a: v2([line[0][0], line[0][1]]),
+        b: v2([line[1][0], line[1][1]]),
+      };
+    });
+
+    p5.push();
+    p5.fill(colors.orange);
+    // p5.noStroke();
+    tangents.forEach((line, i) => {
+      const closestA = closestPointToLine(line.a, line.b, v2(ball.pos));
+      const closestB = closestPointToLine(
+        a,
+        b,
+        p5.createVector(closestA.x, closestA.y)
+      );
+      const ba = v2(ball.pos).sub(p5.createVector(closestA.x, closestA.y));
+      p5.textSize(text.sizeS);
+      p5.text(`${ba.mag()}`, closestA.x, closestA.y);
+      p5.line(closestA.x, closestA.y, closestB.x, closestB.y);
+    });
+    p5.pop();
   }
 
   function drawFlipperCollider(collision: Collision, ball: Body) {
@@ -391,13 +429,13 @@ new P5((p5Instance) => {
     p5.push();
 
     const closest = closestPointToLine(v2(shape.a), v2(shape.b), v2(ball.pos));
-    const closestTangent = closestPointToLine(
-      v2(shape.a),
-      v2(shape.b),
-      v2(body.pos)
-    );
 
     {
+      const closestTangent = closestPointToLine(
+        v2(shape.a),
+        v2(shape.b),
+        v2(body.pos)
+      );
       let dist = 0;
       const a = p5.createVector(closestTangent.x, closestTangent.y);
       const b = p5.createVector(closest.x, closest.y);
@@ -575,7 +613,7 @@ velAngDelta: ${angVelDel}
     p5.line(a.x, a.y, b.x, b.y);
   }
 
-  function drawCollisionInfo(a: Body, collision: Collision) {
+  function drawCollisionInfo(a: Body, collision: Collision, i: number) {
     const { manifold, body: b } = collision;
     const pos = v2(b.pos);
     const { depth } = manifold;
@@ -601,21 +639,31 @@ velAngDelta: ${angVelDel}
     // v2 va = v2_add(a->vel, (v2){-a->ang_vel * ra.y, a->ang_vel * ra.x});
     // v2 vb = v2_add(b->vel, (v2){-b->ang_vel * rb.y, b->ang_vel * rb.x});
 
+    const showExtraInfo = checkboxExtraInfo?.checked();
+
     p5.text(
-      `depth: ${depth}
+      `col: ${i}
+depth: ${depth}
 vel: ${bVel.x}, ${bVel.y}
 velM: ${bVel.mag()}
-p: ${pos.x}, ${pos.y}
-ra: ${ra.x}, ${ra.y}
+p: ${pos.x}, ${pos.y}`,
+      start.x - 20,
+      start.y + i * 50
+    );
+
+    if (showExtraInfo) {
+      p5.text(
+        `ra: ${ra.x}, ${ra.y}
 rb: ${rb.x}, ${rb.y}
 va: ${va.x}, ${va.y}
 vb: ${vb.x}, ${vb.y}
 rv: ${rv.x}, ${rv.y}
 rvL: ${rvLen}
 `,
-      start.x - 20,
-      start.y
-    );
+        start.x - 20,
+        start.y + 23 + i * 50
+      );
+    }
   }
 
   function drawCollisionTan(collision: Collision) {
@@ -628,7 +676,7 @@ rvL: ${rvLen}
     p5.line(a.x, a.y, b.x, b.y);
   }
 
-  function drawCollision(ball: Body, collision: Collision) {
+  function drawCollision(ball: Body, collision: Collision, i: number) {
     p5.push();
     p5.fill(toColor(colors.contact01));
     p5.noStroke();
@@ -657,7 +705,7 @@ rvL: ${rvLen}
     p5.textAlign(p5.RIGHT, p5.CENTER);
     p5.textSize(text.sizeS);
     p5.fill(toColor(colors.info, opacity.l));
-    drawCollisionInfo(ball, collision);
+    drawCollisionInfo(ball, collision, i);
     p5.pop();
   }
 
@@ -699,7 +747,7 @@ rvL: ${rvLen}
 
           p5.line(a.x, a.y, b.x, b.y);
 
-          const tans = outerTangents(a.x, a.y, ra, b.x, b.y, rb);
+          // Draw the collider at body position
           const closest = closestPointToLine(
             v2(shape.a),
             v2(shape.b),
@@ -711,7 +759,8 @@ rvL: ${rvLen}
           p5.circle(closest.x, closest.y, r * 2);
           p5.pop();
 
-          tans.forEach((line) => {
+          const tangents = outerTangents(a.x, a.y, ra, b.x, b.y, rb);
+          tangents.forEach((line) => {
             const [la, lb] = line;
             const [lax, lay] = la;
             const [lbx, lby] = lb;
