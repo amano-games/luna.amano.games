@@ -39,10 +39,18 @@ interface Collision {
   body: Body;
 }
 
+interface CamData {
+  drag_vel: number;
+  limits: [[number, number], [number, number]];
+  soft: [[number, number], [number, number]];
+  hard: [[number, number], [number, number]];
+}
+
 interface Step {
   name: string;
   ball: Body;
   cam_offset: [number, number];
+  cam_data: CamData;
   collisions: Collision[];
   frameIndex: undefined | number;
   physicsStepIndex: undefined | number;

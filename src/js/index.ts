@@ -260,8 +260,7 @@ new P5((p5Instance) => {
 
   function drawScreen() {
     p5.push();
-    p5.strokeWeight(2);
-    p5.stroke(colors.screenBorder);
+    p5.noStroke();
     p5.fill(toColor(colors.screen));
     p5.rect(0, 0, 400, 240);
     p5.pop();
@@ -360,14 +359,104 @@ new P5((p5Instance) => {
     p5.pop();
   }
 
+  function drawCamData(cam_offset: [number, number], camData: CamData) {
+    const { limits, hard, soft, drag_vel } = camData;
+    const camOffset = v2(cam_offset);
+    const halfX = 200;
+    const halfY = 120;
+    const crossHairSize = 5;
+
+    {
+      const limitsMin = v2(limits[0]);
+      const limitsMax = v2(limits[1]);
+      const limitsSize = limitsMax.copy().sub(limitsMin);
+
+      p5.push();
+
+      p5.noFill();
+      p5.stroke(toColor(colors.magenta));
+      p5.rect(limitsMin.x, limitsMin.y, limitsSize.x, limitsSize.y);
+
+      p5.pop();
+    }
+
+    {
+      p5.push();
+
+      const softMin = v2(soft[0]);
+      const softMax = v2(soft[1]);
+
+      const top = halfY - softMin.y * halfY;
+      const bottom = halfY + softMax.y * halfY;
+      p5.strokeWeight(1);
+      p5.stroke(toColor(colors.magenta, opacity.xs));
+      p5.drawingContext.setLineDash([5, 5]);
+
+      p5.line(0, top - camOffset.y, 400, top - camOffset.y);
+      p5.line(0, bottom - camOffset.y, 400, bottom - camOffset.y);
+
+      p5.pop();
+    }
+
+    {
+      p5.push();
+
+      const hardMin = v2(hard[0]);
+      const hardMax = v2(hard[1]);
+
+      const top = halfY - hardMin.y * halfY;
+      const bottom = halfY + hardMax.y * halfY;
+      p5.strokeWeight(1);
+      p5.stroke(toColor(colors.magenta, opacity.xs));
+
+      p5.line(0, top - camOffset.y, 400, top - camOffset.y);
+      p5.line(0, bottom - camOffset.y, 400, bottom - camOffset.y);
+
+      p5.pop();
+    }
+
+    {
+      p5.push();
+
+      p5.strokeWeight(1);
+      p5.stroke(toColor(colors.magenta, opacity.xs));
+
+      p5.line(
+        halfX - crossHairSize - camOffset.x,
+        halfY - camOffset.y,
+        halfX + crossHairSize - camOffset.x,
+        halfY - camOffset.y
+      );
+      p5.line(
+        halfX - camOffset.x,
+        halfY - crossHairSize - camOffset.y,
+        halfX - camOffset.x,
+        halfY + crossHairSize - camOffset.y
+      );
+
+      p5.pop();
+    }
+    {
+      p5.push();
+      p5.textSize(text.sizeS);
+      p5.text(
+        `cam_vel: ${drag_vel}`,
+        halfX - camOffset.x,
+        halfY - crossHairSize - camOffset.y
+      );
+      p5.pop();
+    }
+  }
+
   function drawStep(step: Step) {
     p5.push();
-    const { ball, cam_offset, collisions } = step;
+    const { ball, cam_offset, cam_data, collisions } = step;
     p5.translate(cam_offset[0], cam_offset[1]);
 
     drawStaticBodies(staticBodies);
     drawBall(ball, step);
     drawCollisions(ball, collisions);
+    drawCamData(cam_offset, cam_data);
 
     p5.pop();
   }
