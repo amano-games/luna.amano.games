@@ -15,8 +15,12 @@ interface ShapeCapsule {
   rb: number;
 }
 
-interface ShapePolygon {
+interface ShapeSubPoly {
   verts: [number, number][];
+}
+
+interface ShapePolygon {
+  sub_polys: ShapeSubPoly[];
 }
 
 interface Body {

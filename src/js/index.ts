@@ -12,9 +12,9 @@ interface Controls {
   viewPos: { prevX: null | number; prevY: null | number; isDragging: boolean };
 }
 
-const SHAPE_TYPE_CAPSULE = 3;
-const SHAPE_TYPE_POLY = 2;
-const SHAPE_TYPE_CIRCLE = 0;
+const SHAPE_TYPE_CAPSULE = 4;
+const SHAPE_TYPE_POLY = 3;
+const SHAPE_TYPE_CIRCLE = 1;
 
 // if (import.meta.env.MODE == "development") {
 console.log(`🌚🛠️ Luna tools: ${__APP_VERSION__}`);
@@ -144,6 +144,7 @@ new P5((p5Instance) => {
   function setData(data: Data) {
     steps = data.steps;
     staticBodies = data.static_bodies;
+    console.log(staticBodies);
 
     if (steps == null) return;
 
@@ -830,16 +831,20 @@ rvL: ${rvLen}
       case SHAPE_TYPE_POLY:
         {
           const shape = body.shape as ShapePolygon;
-          p5.beginShape();
-          for (let i = 0; i < shape.verts.length; i++) {
-            const a = v2(shape.verts[i]);
-            p5.vertex(a.x, a.y);
+          for (let i = 0; i < shape.sub_polys.length; i++) {
+            const subPoly = shape.sub_polys[i];
+            p5.beginShape();
+            for (let j = 0; j < subPoly.verts.length; j++) {
+              const a = v2(subPoly.verts[j]);
+              p5.vertex(a.x, a.y);
+            }
+            p5.endShape(p5.CLOSE);
           }
-          p5.endShape(p5.CLOSE);
         }
         break;
       case SHAPE_TYPE_CAPSULE:
         {
+          console.log(body.shape);
           const shape = body.shape as ShapeCapsule;
           const a = v2(shape.a);
           const b = v2(shape.b);
